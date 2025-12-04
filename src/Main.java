@@ -1,15 +1,27 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import filesystem.FileSystemSimulator;
+
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        FileSystemSimulator fs = new FileSystemSimulator();
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
-        }
+        System.out.println("--- Teste de Criação e Listagem ---");
+        fs.createDirectory("/docs");
+        fs.createDirectory("/docs/textos");
+        fs.createFile("/docs/textos/teste.txt", "Conteúdo de teste 1");
+        fs.createFile("/docs/textos/outro.txt", "Conteúdo de teste 2");
+        fs.listDirectory("/docs/textos");
+
+        System.out.println("\n--- Teste de Cópia e Renomeação de Arquivo ---");
+        fs.copyFile("/docs/textos/teste.txt", "/docs/copia.txt");
+        fs.renameFile("/docs/copia.txt", "novo_nome.doc");
+        fs.listDirectory("/docs");
+
+        System.out.println("\n--- Teste de Renomeação e Deleção de Diretório ---");
+        fs.renameDirectory("/docs/textos", "arquivos_antigos");
+        fs.listDirectory("/docs");
+        fs.deleteDirectory("/docs/arquivos_antigos");
+        fs.listDirectory("/docs");
+
+        System.out.println("\n--- Conteúdo do Journal (journal.log) ---");
     }
 }
