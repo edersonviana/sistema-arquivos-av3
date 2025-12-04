@@ -71,26 +71,19 @@ public class FileSystemSimulator {
         journal.log("DELETE_DIR", path);
     }
 
-    public void renameDirectory(String path, String newName) {
+    public boolean renameDirectory(String path, String newName) {
         String parentPath = getParentPath(path);
         String oldName = getName(path);
 
         Directory parent = navigate(parentPath);
 
         if (parent == null || !parent.getDirectories().containsKey(oldName)) {
-            System.out.println("Diretório não encontrado.");
-            return;
+            return false;
         }
 
-        Directory dir = parent.getDirectories().remove(oldName);
-        Directory renamed = new Directory(newName);
-
-        renamed.getDirectories().putAll(dir.getDirectories());
-        renamed.getFiles().putAll(dir.getFiles());
-
-        parent.addDirectory(renamed);
 
         journal.log("RENAME_DIR", path + " -> " + newName);
+        return true;
     }
 
     public void listDirectory(String path) {
@@ -138,15 +131,14 @@ public class FileSystemSimulator {
         journal.log("DELETE_FILE", path);
     }
 
-    public void renameFile(String path, String newName) {
+    public boolean renameFile(String path, String newName) {
         String parentPath = getParentPath(path);
         String name = getName(path);
 
         Directory parent = navigate(parentPath);
 
         if (parent == null || !parent.getFiles().containsKey(name)) {
-            System.out.println("Arquivo não encontrado.");
-            return;
+            return false;
         }
 
         File file = parent.getFiles().remove(name);
@@ -154,6 +146,7 @@ public class FileSystemSimulator {
         parent.addFile(file);
 
         journal.log("RENAME_FILE", path + " -> " + newName);
+        return true;
     }
 
     public void copyFile(String srcPath, String destPath) {
