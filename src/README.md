@@ -123,6 +123,8 @@ Plaintext
         JournalEntry.java
     /ui
         Menu.java
+    Main.java
+    README.md
 
 Compilação:
 
