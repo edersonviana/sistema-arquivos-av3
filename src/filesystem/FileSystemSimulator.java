@@ -168,21 +168,50 @@ public class FileSystemSimulator implements Serializable {
         return true;
     }
 
-    public void copyFile(String srcPath, String destPath) {
+    public boolean copyFile(String srcPath, String destPath) {
         String srcParent = getParentPath(srcPath);
         String srcName = getName(srcPath);
 
-        Directory parent = navigate(srcParent);
-        if (parent == null || !parent.getFiles().containsKey(srcName)) {
-            System.out.println("Arquivo origem não encontrado.");
-            return;
+        Directory srcDir = navigate(srcParent);
+        if (srcDir == null || !srcDir.getFiles().containsKey(srcName)) {
+            System.out.println("Arquivo origem não encontrado: " + srcPath);
+            return false;
         }
 
-        File original = parent.getFiles().get(srcName);
+        File original = srcDir.getFiles().get(srcName);
 
-        createFile(destPath, original.getContent());
+        Directory destDir = navigate(destPath);
+        String destParentPath;
+        String destName;
 
-        journal.log("COPY_FILE", srcPath + " -> " + destPath);
+        if (destDir != null) {
+            destParentPath = destPath;
+            if (destParentPath.equals("/")) destParentPath = "/";
+            destName = srcName;
+        } else {
+            if (destPath.endsWith("/")) {
+                System.out.println("Diretório destino não existe: " + destPath);
+                return false;
+            }
+            destParentPath = getParentPath(destPath);
+            destName = getName(destPath);
+            destDir = navigate(destParentPath);
+            if (destDir == null) {
+                System.out.println("Diretório destino não existe: " + destParentPath);
+                return false;
+            }
+        }
+
+        Directory parentDest = navigate(destParentPath);
+        if (parentDest.getFiles().containsKey(destName)) {
+            System.out.println("Arquivo destino já existe: " + (destParentPath.endsWith("/") ? destParentPath + destName : destParentPath + "/" + destName));
+            return false;
+        }
+
+        parentDest.addFile(new File(destName, original.getContent()));
+        journal.log("COPY_FILE", srcPath + " -> " + (destParentPath.endsWith("/") ? destParentPath + destName : destParentPath + "/" + destName));
+        FileSystemStorage.save(this);
+        return true;
     }
 
     public void readFile(String path) {
