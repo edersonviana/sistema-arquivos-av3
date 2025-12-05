@@ -1,9 +1,10 @@
 package filesystem;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Directory {
+public class Directory implements Serializable {
     private String name;
     private Map<String, File> files = new HashMap<>();
     private Map<String, Directory> directories = new HashMap<>();
@@ -38,5 +39,9 @@ public class Directory {
 
     public void removeDirectory(String name) {
         directories.remove(name);
+    }
+
+    public void setName(String newName) {
+        this.name = newName;
     }
 }

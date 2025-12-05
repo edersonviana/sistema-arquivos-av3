@@ -1,6 +1,8 @@
 package filesystem;
 
-public class FileSystemSimulator {
+import java.io.Serializable;
+
+public class FileSystemSimulator implements Serializable {
 
     private Directory root;
     private Journal journal;
@@ -8,7 +10,9 @@ public class FileSystemSimulator {
     public FileSystemSimulator() {
         this.root = new Directory("/");
         this.journal = new Journal();
+        this.journal.loadFromDisk();  // carrega entradas antigas
     }
+
 
     private Directory navigate(String path) {
         if (path.equals("/") || path.isEmpty()) return root;
@@ -81,10 +85,20 @@ public class FileSystemSimulator {
             return false;
         }
 
+        // Recupera o diretório
+        Directory dir = parent.getDirectories().remove(oldName);
 
+        dir.setName(newName);
+
+        // Reinsere com o novo nome
+        parent.getDirectories().put(newName, dir);
+
+        // Registro no journal
         journal.log("RENAME_DIR", path + " -> " + newName);
+
         return true;
     }
+
 
     public void listDirectory(String path) {
         Directory dir = navigate(path);
@@ -100,6 +114,11 @@ public class FileSystemSimulator {
         System.out.println("Arquivos:");
         dir.getFiles().keySet().forEach(f -> System.out.println(" - " + f));
     }
+
+    public void list(String path) {
+        listDirectory(path);
+    }
+
 
     // ------------------- FILES ---------------------
 
@@ -165,4 +184,28 @@ public class FileSystemSimulator {
 
         journal.log("COPY_FILE", srcPath + " -> " + destPath);
     }
+
+    public void readFile(String path) {
+        String parentPath = getParentPath(path);
+        String name = getName(path);
+
+        Directory parent = navigate(parentPath);
+
+        if (parent == null) {
+            System.out.println("Diretório pai não encontrado.");
+            return;
+        }
+
+        if (!parent.getFiles().containsKey(name)) {
+            System.out.println("Arquivo não existe.");
+            return;
+        }
+
+        File file = parent.getFiles().get(name);
+
+        System.out.println("\n===== CONTEÚDO DO ARQUIVO =====");
+        System.out.println(file.getContent());
+        System.out.println("================================\n");
+    }
+
 }
